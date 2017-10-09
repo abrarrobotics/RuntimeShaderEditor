@@ -1,4 +1,11 @@
+@font-face {
+    font-family: Inconsolata;
+    src: url(Inconsolata-Regular.ttf);
+}
 
+.ace_editor > div {
+    font-family: Inconsolata;
+}
 
 body, html {
   padding: 0;
@@ -8,6 +15,7 @@ body, html {
   display: flex;
   flex-flow: column;
   color: #bdc3c7;
+  font-family: Inconsolata;
 }
 
 .btnLabel {

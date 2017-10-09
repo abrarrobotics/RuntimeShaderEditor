@@ -35,6 +35,7 @@ var RuntimeShaderEditor = (function(){
         //editor.setTheme("ace/theme/monokai");
         editor.setTheme("ace/theme/xcode");
         editor.getSession().setMode("ace/mode/glsl");
+        document.getElementById('code-editor').style.fontSize='16px';
         editor.setValue(vertexBuffer);
         editor.clearSelection();
         document.querySelector("#nextTheme").addEventListener("click", nextTheme);
