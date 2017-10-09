@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Runtime Shader Editor</title>
+      <link rel="stylesheet" href="./css/RuntimeShaderEditor.css">
+      <link rel="stylesheet" href="./libs/alertify/css/alertify.css">
+   </head>
+   <body>
+      <div class="row toolbar">
+          <label class="btnLabel" data-disabled="false" id="btn-connect"> Connect </label>
+          <label class="btnLabel" data-disabled="true"> Load </label>
+          <label class="btnLabel" data-disabled="true"> Send </label>
+          <label class="btnLabel" data-disabled="true"> Restore </label>
+      </div>
+      <div class="row content">
+          <div id="code-editor">
+          </div>
+      </div>
+      <div class="row footer">
+          <span class="footer-label">
+              Please wait...
+          </span>
+          <span id="nextTheme" data-disabled="false" class="btnFooter btnLabel">
+              Next Theme
+          </span>
+          <span id="prevTheme" data-disabled="false" class="btnFooter btnLabel">
+              Prev. Theme
+          </span>
+      </div>      
+      <script src="./libs/ace/ace.js"></script>
+      <script src="./libs/alertify/js/alertify.js"></script>
+      <script src="./js/RuntimeShaderEditor.js"></script>
+   </body>
+</html>

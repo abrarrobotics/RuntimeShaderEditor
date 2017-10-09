@@ -1,0 +1,59 @@
+
+
+body, html {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  color: #bdc3c7;
+}
+
+.btnLabel {
+    text-align: center;
+    display: inline-block;
+    margin: 0 5px 0 5px;
+    user-select: none;
+}
+.btnLabel[data-disabled = "false"]:hover {
+    font-weight: bold;
+    color: #ecf0f1;
+    cursor: pointer;
+}
+
+.btnLabel[data-disabled = "true"] {
+    color: #51463C;
+}
+
+.toolbar {
+    user-select: none;
+    flex: 0 1 1cm;
+    line-height: 1cm;
+    padding-left: 0.2cm;
+    background-color: #14100E;
+}
+
+.content {
+    flex: 1 1 auto;
+    background-color: #ecf0f1;
+}
+
+.footer {
+    flex: 0 0 1cm;
+    background-color: #14100E;
+    padding-left: 0.2cm;
+    line-height: 1cm;
+}
+
+#code-editor {
+    position: absolute;
+    width: 100%;
+    height: 20%;
+}
+
+.btnFooter {
+  width: 100px;
+  float:  right;
+  cursor: pointer;
+}

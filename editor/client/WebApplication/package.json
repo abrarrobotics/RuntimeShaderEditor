@@ -1,0 +1,8 @@
+{
+    "name"   : "RuntimeShaderEditor",
+    "main"   : "app.html",
+    "window" : {
+    	"width" : 640,
+    	"height" : 480
+    }
+}

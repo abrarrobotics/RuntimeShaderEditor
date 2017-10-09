@@ -1,0 +1,6 @@
+set solib-search-path ./obj/local/armeabi-v7a
+source C:/android-ndk-r10e/prebuilt/common/gdb/common.setup
+directory C:/android-ndk-r10e/platforms/android-21/arch-arm/usr/include jni/../../src C:/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include C:/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include C:/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include/backward
+file ./obj/local/armeabi-v7a/app_process
+target remote :5039
+set breakpoint pending on
