@@ -3,6 +3,8 @@ var net = require("net");
 
 var RuntimeShaderEditor = (function(){
 
+    var vertexBuffer = "\r\n#version 410\r\n \r\nlayout (std140) uniform Matrices {\r\n    mat4 projModelViewMatrix;\r\n    mat3 normalMatrix;\r\n};\r\n \r\nin vec3 position;\r\nin vec3 normal;\r\nin vec2 texCoord;\r\n \r\nout VertexData {\r\n    vec2 texCoord;\r\n    vec3 normal;\r\n} VertexOut;\r\n \r\nvoid main()\r\n{\r\n    VertexOut.texCoord = texCoord;\r\n    VertexOut.normal = normalize(normalMatrix * normal);    \r\n    gl_Position = projModelViewMatrix * vec4(position, 1.0);\r\n}";
+    var fragmentBuffer = "#version 150\r\n \r\nout vec4 colorOut;\r\n \r\nvoid main()\r\n{\r\n    colorOut = vec4(1.0, 0.0, 0.0, 1.0);\r\n}";
     var socket = null;
     var connectionState = "disconnected";
     var footerLabel = null;
@@ -12,6 +14,7 @@ var RuntimeShaderEditor = (function(){
     var loadButton = null;
     var sendButton = null;
     var restoreButton = null;
+    var currentTab = "vertex";
     var themes = [ "emelist" , "ambiance" , "chaos" ,
               "chrome" , "clouds" , "clouds_midnight" ,
               "cobalt" , "crimson_editor" , "dawn" ,
@@ -32,7 +35,8 @@ var RuntimeShaderEditor = (function(){
         //editor.setTheme("ace/theme/monokai");
         editor.setTheme("ace/theme/xcode");
         editor.getSession().setMode("ace/mode/glsl");
-        editor.setValue("#version 150\r\n \r\nout vec4 colorOut;\r\n \r\nvoid main()\r\n{\r\n    colorOut = vec4(1.0, 0.0, 0.0, 1.0);\r\n}");
+        editor.setValue(vertexBuffer);
+        editor.clearSelection();
         document.querySelector("#nextTheme").addEventListener("click", nextTheme);
         document.querySelector("#prevTheme").addEventListener("click", previousTheme);
         connectButton = document.querySelector("#btn-connect");
@@ -43,6 +47,32 @@ var RuntimeShaderEditor = (function(){
         loadButton.addEventListener("click", onLoadBtnClicked);
         document.querySelector("body").addEventListener("onscroll", onScroll);
         window.addEventListener("resize", onResize);
+
+        $('#vertex-fragment-switch').w2tabs({
+            name: 'vertex-fragment-switch',
+            active: 'vertex',
+            tabs: [
+                { id: 'vertex', caption: 'Vertex Shader' },
+                { id: 'fragment', caption: 'Fragment Shader'},
+            ],
+            onClick: function (event) {
+                if(event.target == "fragment" && currentTab == "vertex")
+                {
+                    vertexBuffer = editor.getValue();
+                    editor.setValue(fragmentBuffer);
+                    editor.clearSelection();
+                    currentTab = "fragment";
+                }
+                else if(event.target == "vertex" && currentTab == "fragment")
+                {
+                    fragmentBuffer = editor.getValue();
+                    editor.setValue(vertexBuffer);
+                    editor.clearSelection();
+                    currentTab = "vertex";
+                }
+            }
+        });
+
         onResize();
         updateButtonLabels();
         footerLabel.innerHTML = "Ready";
@@ -56,7 +86,9 @@ var RuntimeShaderEditor = (function(){
     function onResize()
     {
         var rect = document.querySelector(".content").getBoundingClientRect();
-        document.querySelector("#code-editor").style.height = rect.height + "px";
+        var rect2 = document.querySelector("#vertex-fragment-switch").getBoundingClientRect();
+        document.querySelector("#code-editor").style.height = (rect.height - rect2.height) + "px";
+        editor.resize();
     }
 
     function nextTheme()
@@ -67,7 +99,7 @@ var RuntimeShaderEditor = (function(){
     		currentThemeIndex = 0;
     	}
     	editor.setTheme("ace/theme/" + themes[currentThemeIndex]);
-      footerLabel.innerHTML = "Current theme: " + themes[currentThemeIndex];
+        footerLabel.innerHTML = "Current theme: " + themes[currentThemeIndex];
     }
 
     function previousTheme()
@@ -78,7 +110,7 @@ var RuntimeShaderEditor = (function(){
     		currentThemeIndex = themes.length-1;
     	}
     	editor.setTheme("ace/theme/" + themes[currentThemeIndex]);
-      footerLabel.innerHTML = "Current theme: " + themes[currentThemeIndex];
+        footerLabel.innerHTML = "Current theme: " + themes[currentThemeIndex];
     }
 
     function onConnectBtnClicked(e)
