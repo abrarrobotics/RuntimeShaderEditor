@@ -1,1 +1,1 @@
-%NW_DIR%nw.exe ./WebApplication
+%NW_DIR%/nw.exe ./WebApplication

@@ -1,1 +1,1 @@
-%NW_SDK%nw.exe ./WebApplication
+%NW_SDK%/nw.exe ./WebApplication
