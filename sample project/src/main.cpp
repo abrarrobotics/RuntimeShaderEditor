@@ -1,6 +1,6 @@
 
 #include <WindowManager/WindowManager.hpp>
-#include <RuntimeShaderEditor\RunetimeShaderEditor.hpp>
+#include <RuntimeShaderEditor\RuntimeShaderEditor.hpp>
 #include <Scene.hpp>
 
 int main(int argc, char*argv[])

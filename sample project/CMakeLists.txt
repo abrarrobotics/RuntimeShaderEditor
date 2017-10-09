@@ -17,6 +17,7 @@ add_executable ( 3DApplication src/main.cpp
                                src/ModelLoader/FormatDetector.cpp
                                src/ModelLoader/PLYLoader.cpp
                                src/Utils/tga.cpp
+                               ./../editor/server/RuntimeShaderEditor/RuntimeShaderEditor.cpp
                                src/Monkey.cpp)
 
 if(WIN32)
@@ -34,10 +35,12 @@ find_library (GLEW_PATH
               NAMES         glew32
               PATHS         "$ENV{CC_COMMON_LIBS}/glew/VS2012/"
               PATH_SUFFIXES "lib/Release/Win32" )
+              set ( WS2_32 ws2_32)        
 else()
               set ( SDL2MAIN_PATH SDL2main)
               set ( SDL2_PATH     SDL2)
               set ( GLEW_PATH     GLEW)
+              set ( WS2_32 )
 endif()
 
 
@@ -45,11 +48,13 @@ if (WIN32)
 include_directories ( "${PROJECT_SOURCE_DIR}/src"
                       "$ENV{CC_COMMON_LIBS}/SDL/VS2012/include"
                       "$ENV{CC_COMMON_LIBS}/glew/VS2012/include"
+                      "${PROJECT_SOURCE_DIR}/../editor/server/"
                       "$ENV{CC_COMMON_LIBS}/glm" )
 
 
 else()
 include_directories ( "${PROJECT_SOURCE_DIR}"
+                      "${PROJECT_SOURCE_DIR}/../editor/server/"
                       "$ENV{CC_COMMON_LIBS}/glm" )
 endif()
 
@@ -63,7 +68,8 @@ endif()
 target_link_libraries ( 3DApplication ${SDL2MAIN_PATH}
                                       ${SDL2_PATH}
                                       ${OPENGL}
-                                      ${GLEW_PATH} )
+                                      ${GLEW_PATH}
+                                      ${WS2_32})
 
 
 if(WIN32)

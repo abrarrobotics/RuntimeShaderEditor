@@ -1,10 +1,17 @@
 
+var net = require("net");
+
 var RuntimeShaderEditor = (function(){
 
+    var socket = null;
     var isConnected = false;
     var footerLabel = null;
     var editor = null;
     var currentThemeIndex = 0;
+    var connectButton = null;
+    var loadButton = null;
+    var sendButton = null;
+    var restoreButton = null;
     var themes = [ "emelist" , "ambiance" , "chaos" ,
               "chrome" , "clouds" , "clouds_midnight" ,
               "cobalt" , "crimson_editor" , "dawn" ,
@@ -28,7 +35,12 @@ var RuntimeShaderEditor = (function(){
         editor.setValue("#version 150\r\n \r\nout vec4 colorOut;\r\n \r\nvoid main()\r\n{\r\n    colorOut = vec4(1.0, 0.0, 0.0, 1.0);\r\n}");
         document.querySelector("#nextTheme").addEventListener("click", nextTheme);
         document.querySelector("#prevTheme").addEventListener("click", previousTheme);
-        document.querySelector("#btn-connect").addEventListener("click", onConnectBtnClicked);
+        connectButton = document.querySelector("#btn-connect");
+        loadButton = document.querySelector("#btn-load");
+        sendButton = document.querySelector("#btn-send");
+        restoreButton = document.querySelector("#btn-restore");
+        connectButton.addEventListener("click", onConnectBtnClicked);
+        loadButton.addEventListener("click", onLoadBtnClicked);
         document.querySelector("body").addEventListener("onscroll", onScroll);
         window.addEventListener("resize", onResize);
         onResize();
@@ -71,14 +83,80 @@ var RuntimeShaderEditor = (function(){
 
     function onConnectBtnClicked(e)
     {
-        alertify
-        .defaultValue("127.0.0.1:1111")
-        .prompt("REMOTE TARGET:", function(val){
-            footerLabel.innerHTML = "Connecting to " + val + "...";
-            e.target.innerHTML = "Disconnect";
-            updateButtonLabels();
-        });
+        if(!isConnected)
+        {
+            alertify
+            .defaultValue("127.0.0.1:1111")
+            .prompt("REMOTE TARGET:", function(val){
+                connectButton.dataset.disabled = "true";
+                footerLabel.innerHTML = "Connecting to " + val + "...";
+                var sockaddr = val.split(":");
+                socket = net.createConnection({host:sockaddr[0], port:sockaddr[1]}, function(){
+                    // TODO: receive an ACK before considering the connection opened
+                    onConnectionSucceed();
+                });
+                socket.on("error", onSocketError);
+                socket.on("data", onSocketData);
+                socket.on("close", onSocketDisconnected);
+            });
+        }
+        else
+        {
+            socket.end();
+            footerLabel.innerHTML = "Connection closed";
+            onSocketDisconnected();
+        }
         console.log(e);
+    }
+
+    function onLoadBtnClicked(e)
+    {
+        if (loadButton.dataset.disabled == "true")
+        {
+            return;
+        }
+        alertify
+        .defaultValue("")
+        .prompt("Load GL Program", function(val){
+            socket.write("getShaderSource(" + val + ")\r\n");
+        });
+    }
+
+    function onSocketData(data)
+    {
+        editor.setValue(data.toString());
+    }
+
+    function onSocketError()
+    {
+        footerLabel.innerHTML = "Connection failed";
+        connectButton.dataset.disabled = "false";
+    }
+
+    function onSocketDisconnected()
+    {
+        connectButton.innerHTML = "Connect";
+        isConnected = false;
+        updateButtonLabels();
+        connectButton.dataset.disabled = "false";
+        loadButton.dataset.disabled = "true";
+        sendButton.dataset.disabled = "true";
+        restoreButton.dataset.disabled = "true";
+    }
+
+    function onConnectionSucceed()
+    {
+        connectButton.innerHTML = "Disconnect";
+        updateButtonLabels();
+        footerLabel.innerHTML = "Connection succeed";
+        connectButton.dataset.disabled = "false";
+        isConnected = true;
+        loadButton.dataset.disabled = "false";
+    }
+
+    function onShaderLoaded()
+    {
+
     }
 
     function updateButtonLabels()

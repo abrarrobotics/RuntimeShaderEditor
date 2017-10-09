@@ -1,6 +1,6 @@
 
 
-#include <RuntimeShaderEditor\RunetimeShaderEditor.hpp>
+#include <RuntimeShaderEditor\RuntimeShaderEditor.hpp>
 #if defined (WIN32)
 # include <stdio.h>
 # define RSE_LOG(...) printf(__VA_ARGS__); printf("\r\n")
