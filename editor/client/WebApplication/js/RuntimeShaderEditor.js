@@ -4,7 +4,7 @@ var net = require("net");
 var RuntimeShaderEditor = (function(){
 
     var socket = null;
-    var isConnected = false;
+    var connectionState = "disconnected";
     var footerLabel = null;
     var editor = null;
     var currentThemeIndex = 0;
@@ -83,7 +83,7 @@ var RuntimeShaderEditor = (function(){
 
     function onConnectBtnClicked(e)
     {
-        if(!isConnected)
+        if(connectionState == "disconnected")
         {
             alertify
             .defaultValue("127.0.0.1:1111")
@@ -92,8 +92,14 @@ var RuntimeShaderEditor = (function(){
                 footerLabel.innerHTML = "Connecting to " + val + "...";
                 var sockaddr = val.split(":");
                 socket = net.createConnection({host:sockaddr[0], port:sockaddr[1]}, function(){
-                    // TODO: receive an ACK before considering the connection opened
-                    onConnectionSucceed();
+                    connectionState = "handshaking";
+                    setTimeout(function(){
+                        if(connectionState == "handshaking")
+                        {
+                            onSocketError();
+                            socket.end();
+                        }
+                    }, 3000);
                 });
                 socket.on("error", onSocketError);
                 socket.on("data", onSocketData);
@@ -124,7 +130,23 @@ var RuntimeShaderEditor = (function(){
 
     function onSocketData(data)
     {
-        editor.setValue(data.toString());
+        if(connectionState == "handshaking")
+        {
+            if(data.toString().indexOf("RSE-ACK") >= 0)
+            {
+                connectionState = "connected";
+                onConnectionSucceed();
+            }
+            else
+            {
+                socket.end();
+                onSocketError();
+            }
+        }
+        else
+        {
+            editor.setValue(data.toString());
+        }
     }
 
     function onSocketError()
@@ -136,7 +158,7 @@ var RuntimeShaderEditor = (function(){
     function onSocketDisconnected()
     {
         connectButton.innerHTML = "Connect";
-        isConnected = false;
+        connectionState = "disconnected";
         updateButtonLabels();
         connectButton.dataset.disabled = "false";
         loadButton.dataset.disabled = "true";
@@ -150,7 +172,7 @@ var RuntimeShaderEditor = (function(){
         updateButtonLabels();
         footerLabel.innerHTML = "Connection succeed";
         connectButton.dataset.disabled = "false";
-        isConnected = true;
+        connectionState = "connected";
         loadButton.dataset.disabled = "false";
     }
 

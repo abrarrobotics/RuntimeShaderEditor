@@ -135,6 +135,7 @@ void RuntimeShaderEditor::Update()
     if(FD_ISSET(m_socket, &readset))
     {
         m_client = accept(m_socket, NULL, NULL);
+        send(m_client, "RSE-ACK\r\n", 9, 0);
         RSE_LOG("New connection received");
     }
 
