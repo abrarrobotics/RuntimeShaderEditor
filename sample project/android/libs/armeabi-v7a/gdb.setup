@@ -1,2 +1,0 @@
-set solib-search-path ./obj/local/armeabi-v7a
-directory E:/GangstarNO/android/android-ndk-r12b/build//../platforms/android-24/arch-arm/usr/include jni/../../src E:/GangstarNO/android/android-ndk-r12b/build//../sources/cxx-stl/gnu-libstdc++/4.9/include E:/GangstarNO/android/android-ndk-r12b/build//../sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi-v7a/include E:/GangstarNO/android/android-ndk-r12b/build//../sources/cxx-stl/gnu-libstdc++/4.9/include/backward
