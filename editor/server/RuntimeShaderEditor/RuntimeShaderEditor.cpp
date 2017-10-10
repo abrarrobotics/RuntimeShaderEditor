@@ -101,6 +101,8 @@ void RuntimeShaderEditor::getShaderSource(GLint program, char* buffer, GLint siz
     GLuint toBeReplaced = 0;
     char vs[1024];
     char fs[1024];
+	vs[0] = 0x00;
+	fs[0] = 0x00;
     glGetAttachedShaders(program, 3, &shadersCount, shaderNames);
     for(int i = 0; i < shadersCount; i++)
     {
