@@ -22,7 +22,7 @@ RuntimeShaderEditor::RuntimeShaderEditor()
   , m_socket(0)
   , m_client(0)
 {
-
+	m_message.clear();
 }
 
 RuntimeShaderEditor::~RuntimeShaderEditor()
@@ -140,7 +140,9 @@ void RuntimeShaderEditor::Update()
     if(FD_ISSET(m_socket, &readset))
     {
         m_client = accept(m_socket, NULL, NULL);
-        send(m_client, "RSE-ACK\r\n", 9, 0);
+		char rawMessage[20];
+		m_message.prepareMessage("RSE-ACK\r\n", rawMessage);
+        send(m_client, rawMessage,strlen(rawMessage), 0);
         RSE_LOG("New connection received");
     }
 
@@ -156,32 +158,42 @@ void RuntimeShaderEditor::Update()
         else
         {
             buffer[len] = 0x00;
-            RSE_LOG("New command received: %s, len:%i", buffer, len);
-            if(strstr(buffer, "getShaderSource"))
-            {
-                int program = 0;
-                sscanf(buffer, "getShaderSource(%i)\r\n", &program);
-                RSE_LOG("Se ha solicitado el codigo del shader: %i", program);
-                getShaderSource(program, buffer, 2048);
-                send(m_client, buffer, strlen(buffer), 0);
-            }
-            else if(strstr(buffer, "patchShader"))
-            {
-                int program = 0;
-                int shaderType = 0;
-                sscanf(buffer, "patchShader(%i,%i)", &program, &shaderType);
-                char* aux = strstr(buffer, ")");
-                if(shaderType == 0)
-                {
-                    shaderType = GL_VERTEX_SHADER;
-                }
-                else
-                {
-                    shaderType = GL_FRAGMENT_SHADER;
-                }
-                PatchShader(program, &aux[1], shaderType);
-                send(m_client, "done\r\n", 6, 0);
-            }
+			m_message.addData(buffer);
+			if (m_message.isComplete())
+			{
+				const char *msg = m_message.getMessage();
+				RSE_LOG("New command received: %s, len:%i", msg, len);
+				if (strstr(msg, "getShaderSource"))
+				{
+					int program = 0;
+					sscanf(msg, "getShaderSource(%i)\r\n", &program);
+					RSE_LOG("Se ha solicitado el codigo del shader: %i", program);
+					getShaderSource(program, buffer, 2048);
+					char rawMessage[4000];
+					m_message.prepareMessage(buffer, rawMessage);
+					send(m_client, rawMessage, strlen(rawMessage), 0);
+				}
+				else if (strstr(msg, "patchShader"))
+				{
+					int program = 0;
+					int shaderType = 0;
+					sscanf(msg, "patchShader(%i,%i)", &program, &shaderType);
+					const char* aux = strstr(msg, ")");
+					if (shaderType == 0)
+					{
+						shaderType = GL_VERTEX_SHADER;
+					}
+					else
+					{
+						shaderType = GL_FRAGMENT_SHADER;
+					}
+					PatchShader(program, &aux[1], shaderType);
+					char rawMessage[10];
+					m_message.prepareMessage("done\r\n", rawMessage);
+					send(m_client, rawMessage, strlen(rawMessage), 0);
+				}
+				m_message.clear();
+			}
         }
     }
 }

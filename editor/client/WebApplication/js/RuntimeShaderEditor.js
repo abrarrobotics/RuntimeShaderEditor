@@ -162,7 +162,7 @@ var RuntimeShaderEditor = (function(){
         .defaultValue("")
         .prompt("Load GL Program", function(val){
             connectionState = "loadingProgram";
-            socket.write("getShaderSource(" + val + ")\r\n");
+            socket.write(RSEMessage.prepareMessage("getShaderSource(" + val + ")\r\n"));
             currentProgram = val;
         });
     }
@@ -189,6 +189,15 @@ var RuntimeShaderEditor = (function(){
 
     function onSocketData(data)
     {
+        RSEMessage.addData(data);
+        if(!RSEMessage.isComplete())
+        {
+            return;
+        }
+
+        data = RSEMessage.getMessage();
+        RSEMessage.clear();
+
         if(connectionState == "handshaking")
         {
             if(data.toString().indexOf("RSE-ACK") >= 0)
@@ -246,12 +255,12 @@ var RuntimeShaderEditor = (function(){
         if(currentTab == "vertex")
         {
             vertexBuffer = editor.getValue();
-            socket.write("patchShader(" + currentProgram + ",0)" + vertexBuffer);
+            socket.write(RSEMessage.prepareMessage("patchShader(" + currentProgram + ",0)" + vertexBuffer));
         }
         else
         {
             fragmentBuffer = editor.getValue();
-            socket.write("patchShader(" + currentProgram + ",1)" + fragmentBuffer);
+            socket.write(RSEMessage.prepareMessage("patchShader(" + currentProgram + ",1)" + fragmentBuffer));
         }
     }
 

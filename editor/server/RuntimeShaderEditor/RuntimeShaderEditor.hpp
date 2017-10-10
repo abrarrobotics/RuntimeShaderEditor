@@ -18,6 +18,36 @@
 #  include <GL/glew.h>
 #  include <GL/gl.h>
 # endif
+#include <string>
+
+class RSEMessage
+{
+private:
+	std::string buffer;
+public:
+	void addData(char*data)
+	{
+		buffer.append(data);
+	}
+	bool isComplete()
+	{
+		int len = 0;
+		sscanf(buffer.c_str(), "%i ", &len);
+		return strlen(strstr(buffer.c_str(), " ")) == len + 1;
+	}
+	void clear()
+	{
+		buffer.clear();
+	}
+	void prepareMessage(const char*input, char*output)
+	{
+		sprintf(output, "%i %s", strlen(input), input);
+	}
+	const char* getMessage()
+	{
+		return strstr(buffer.c_str(), " ") + 1;
+	}
+};
 
 class RuntimeShaderEditor
 {
@@ -32,6 +62,7 @@ class RuntimeShaderEditor
         int m_port;
         int m_socket;
         int m_client;
+		RSEMessage m_message;
 #if defined (WIN32)
         static bool s_initialized;
         static WSAData s_wsaData;

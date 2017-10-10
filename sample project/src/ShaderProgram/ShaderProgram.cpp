@@ -24,6 +24,7 @@ void ShaderProgram::init(const char *vertex_shader, const char *fragment_shader,
   {
       char *buffer = readFile(vertex_shader);
       glShaderSource(m_vertex_shader, 1, (const GLchar **)&buffer, 0);
+      debug("Source: %s", buffer);
       delete[] buffer;
   }
 
@@ -31,6 +32,7 @@ void ShaderProgram::init(const char *vertex_shader, const char *fragment_shader,
   {
       char *buffer = readFile(fragment_shader);
       glShaderSource(m_fragment_shader, 1, (const GLchar **)&buffer, 0);
+      debug("Source: %s", buffer);
       delete[] buffer;
   }
 

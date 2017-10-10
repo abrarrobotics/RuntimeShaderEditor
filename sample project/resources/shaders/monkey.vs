@@ -1,4 +1,4 @@
-
+precision highp float;
 uniform mat4 mvp;
 attribute vec3 pos;
 attribute vec3 norm;
