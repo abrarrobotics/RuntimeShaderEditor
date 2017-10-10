@@ -109,7 +109,7 @@ void RuntimeShaderEditor::getShaderSource(GLint program, char* buffer, GLint siz
         glGetShaderiv(shaderNames[i], GL_SHADER_TYPE, &typeAux);
         glGetShaderSource(shaderNames[i], 1024, &len, typeAux == GL_VERTEX_SHADER ? vs : fs);
     }
-    const char* format = "VERTEX:\r\n%sFRAGMENT:%s\r\n";
+    const char* format = "%s[SEPARATOR]%s";
     sprintf(buffer, format, vs, fs);
 }
 

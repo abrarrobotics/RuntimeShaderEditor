@@ -3,8 +3,9 @@ var net = require("net");
 
 var RuntimeShaderEditor = (function(){
 
-    var vertexBuffer = "\r\n#version 410\r\n \r\nlayout (std140) uniform Matrices {\r\n    mat4 projModelViewMatrix;\r\n    mat3 normalMatrix;\r\n};\r\n \r\nin vec3 position;\r\nin vec3 normal;\r\nin vec2 texCoord;\r\n \r\nout VertexData {\r\n    vec2 texCoord;\r\n    vec3 normal;\r\n} VertexOut;\r\n \r\nvoid main()\r\n{\r\n    VertexOut.texCoord = texCoord;\r\n    VertexOut.normal = normalize(normalMatrix * normal);    \r\n    gl_Position = projModelViewMatrix * vec4(position, 1.0);\r\n}";
-    var fragmentBuffer = "#version 150\r\n \r\nout vec4 colorOut;\r\n \r\nvoid main()\r\n{\r\n    colorOut = vec4(1.0, 0.0, 0.0, 1.0);\r\n}";
+    var originalSource = [];
+    var vertexBuffer = "";
+    var fragmentBuffer = "";
     var socket = null;
     var connectionState = "disconnected";
     var footerLabel = null;
@@ -14,6 +15,7 @@ var RuntimeShaderEditor = (function(){
     var loadButton = null;
     var sendButton = null;
     var restoreButton = null;
+    var currentProgram = -1;
     var currentTab = "vertex";
     var themes = [ "emelist" , "ambiance" , "chaos" ,
               "chrome" , "clouds" , "clouds_midnight" ,
@@ -46,6 +48,8 @@ var RuntimeShaderEditor = (function(){
         restoreButton = document.querySelector("#btn-restore");
         connectButton.addEventListener("click", onConnectBtnClicked);
         loadButton.addEventListener("click", onLoadBtnClicked);
+        sendButton.addEventListener("click", onSendBtnClicked);
+        restoreButton.addEventListener("click", onRestoreBtnClicked);
         document.querySelector("body").addEventListener("onscroll", onScroll);
         window.addEventListener("resize", onResize);
 
@@ -157,8 +161,30 @@ var RuntimeShaderEditor = (function(){
         alertify
         .defaultValue("")
         .prompt("Load GL Program", function(val){
+            connectionState = "loadingProgram";
             socket.write("getShaderSource(" + val + ")\r\n");
+            currentProgram = val;
         });
+    }
+
+    function onRestoreBtnClicked()
+    {
+        if(restoreButton.dataset.disabled == "true")
+        {
+            return;
+        }
+        if(currentTab == "vertex")
+        {
+            vertexBuffer = originalSource[currentProgram].vertex;
+            editor.setValue(vertexBuffer);
+        }
+        if(currentTab == "fragment")
+        {
+            fragmentBuffer = originalSource[currentProgram].fragment;
+            editor.setValue(fragmentBuffer);
+        }
+        editor.clearSelection();
+        onSendBtnClicked();
     }
 
     function onSocketData(data)
@@ -176,9 +202,56 @@ var RuntimeShaderEditor = (function(){
                 onSocketError();
             }
         }
+        else if(connectionState == "loadingProgram")
+        {
+            var code = data.toString().split("[SEPARATOR]");
+            vertexBuffer = code[0];
+            fragmentBuffer = code[1];
+            originalSource[currentProgram] = {vertex : vertexBuffer, fragment : fragmentBuffer};
+            if(currentTab == "vertex")
+            {
+                editor.setValue(vertexBuffer);
+            }
+            else
+            {
+                editor.setValue(fragmentBuffer);
+            }
+            editor.clearSelection();
+            connectionState = "programLoaded";
+            onProgramLoaded();
+        }
+        else if(connectionState == "patchingShader")
+        {
+            connectionState = "programLoaded";
+            if(data.toString().indexOf("done") >= 0 )
+            {
+                footerLabel.innerHTML = "Done";
+            }
+            else
+            {
+                footerLabel.innerHTML = "Compilation Failed";
+            }
+        }
+    }
+
+    function onSendBtnClicked()
+    {
+        if(sendButton.dataset.disabled == "true")
+        {
+            return;
+        }
+
+        connectionState = "patchingShader";
+
+        if(currentTab == "vertex")
+        {
+            vertexBuffer = editor.getValue();
+            socket.write("patchShader(" + currentProgram + ",0)" + vertexBuffer);
+        }
         else
         {
-            editor.setValue(data.toString());
+            fragmentBuffer = editor.getValue();
+            socket.write("patchShader(" + currentProgram + ",1)" + fragmentBuffer);
         }
     }
 
@@ -209,9 +282,11 @@ var RuntimeShaderEditor = (function(){
         loadButton.dataset.disabled = "false";
     }
 
-    function onShaderLoaded()
+    function onProgramLoaded()
     {
-
+        sendButton.dataset.disabled = "false";
+        restoreButton.dataset.disabled = "false";
+        footerLabel.innerHTML = "Program " + currentProgram + " loaded";
     }
 
     function updateButtonLabels()
