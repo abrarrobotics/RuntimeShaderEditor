@@ -18,7 +18,7 @@ WSAData RuntimeShaderEditor::s_wsaData;
 #endif
 
 RuntimeShaderEditor::RuntimeShaderEditor()
-  : m_port(12345)
+  : m_port(12346)
   , m_socket(0)
   , m_client(0)
 {

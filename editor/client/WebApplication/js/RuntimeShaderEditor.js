@@ -123,7 +123,7 @@ var RuntimeShaderEditor = (function(){
         if(connectionState == "disconnected")
         {
             alertify
-            .defaultValue("127.0.0.1:12345")
+            .defaultValue("127.0.0.1:12346")
             .prompt("REMOTE TARGET:", function(val){
                 connectButton.dataset.disabled = "true";
                 footerLabel.innerHTML = "Connecting to " + val + "...";
