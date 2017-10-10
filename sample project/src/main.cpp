@@ -1,17 +1,14 @@
 
 #include <WindowManager/WindowManager.hpp>
-#include <RuntimeShaderEditor\RuntimeShaderEditor.hpp>
 #include <Scene.hpp>
 
 int main(int argc, char*argv[])
 {
-    RuntimeShaderEditor::GetInstance()->Init();
     WindowManager::createWindow("3DBasicFramework", WindowManager::SMALL);
     glewInit();
     Scene::init();
     while(!WindowManager::isClosed)
     {
-        RuntimeShaderEditor::GetInstance()->Update();
         WindowManager::processEvents();
         Scene::update(WindowManager::getElapsedTime());
         Scene::render();

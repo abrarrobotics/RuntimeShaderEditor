@@ -3,12 +3,14 @@
 #include <Scene.hpp>
 #include <InputManager/InputManager.hpp>
 #include <Utils/gl.h>
+#include <RuntimeShaderEditor\RuntimeShaderEditor.hpp>
 
 Monkey Scene::monkey;
 Camera Scene::cam;
 
 void Scene::init()
 {
+    RuntimeShaderEditor::GetInstance()->Init();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     monkey.init();
@@ -18,6 +20,7 @@ void Scene::init()
 
 void Scene::update(float dt)
 {
+   RuntimeShaderEditor::GetInstance()->Update();
     monkey.rotation.z += dt * 1.00f;
    float rot_speed = InputManager::keyboard.lctrl? 6.0f : 3.0f;
 

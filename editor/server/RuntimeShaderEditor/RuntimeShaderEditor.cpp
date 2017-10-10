@@ -8,14 +8,17 @@
 # include <android/log.h>
 # define RSE_LOG(...) __android_log_print(ANDROID_LOG_INFO, "RuntimeShaderEditor", __VA_ARGS__)
 #endif
+#include <stdio.h>
 
 
 RuntimeShaderEditor* RuntimeShaderEditor::s_instance = nullptr;
+#if defined (WIN32)
 bool RuntimeShaderEditor::s_initialized = false;
 WSAData RuntimeShaderEditor::s_wsaData;
+#endif
 
 RuntimeShaderEditor::RuntimeShaderEditor()
-  : m_port(1111)
+  : m_port(12345)
   , m_socket(0)
   , m_client(0)
 {
@@ -57,12 +60,12 @@ void RuntimeShaderEditor::Init()
     sockaddr1.sin_family = AF_INET;
     sockaddr1.sin_addr.s_addr = INADDR_ANY;
     sockaddr1.sin_port = htons(m_port);
-    if(bind(m_socket, (sockaddr*)&sockaddr1, sizeof sockaddr1) == SOCKET_ERROR)
+    if(bind(m_socket, (sockaddr*)&sockaddr1, sizeof sockaddr1) == -1)
     {
         RSE_LOG("Error binding socket");
         return;
     }
-    if(listen(m_socket,SOMAXCONN) == SOCKET_ERROR)
+    if(listen(m_socket,SOMAXCONN) == -1)
     {
         RSE_LOG("Error listening on port %i", m_port);
         return;
@@ -126,7 +129,7 @@ void RuntimeShaderEditor::Update()
         FD_SET(m_client, &readset);
     }
 
-    int no_events = select(m_socket + 1, &readset, NULL, NULL, &tval);
+    int no_events = select(m_socket > m_client ? (m_socket + 1) : m_client + 1, &readset, NULL, NULL, &tval);
 
     if(no_events == 0)
     {
@@ -145,7 +148,7 @@ void RuntimeShaderEditor::Update()
     {
         char buffer[2048];
         int len = recv(m_client, buffer, 2048-1, 0);
-        if(len == -1)
+        if(len < 1)
         {
             RSE_LOG("Connection lost!");
             m_client = 0;
@@ -153,7 +156,7 @@ void RuntimeShaderEditor::Update()
         else
         {
             buffer[len] = 0x00;
-            //RSE_LOG("New command received: %s", buffer);
+            RSE_LOG("New command received: %s, len:%i", buffer, len);
             if(strstr(buffer, "getShaderSource"))
             {
                 int program = 0;

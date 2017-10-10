@@ -6,6 +6,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <sys/select.h>
 #endif
 # ifdef OS_ANDROID
 #  include <GLES3/gl3.h>

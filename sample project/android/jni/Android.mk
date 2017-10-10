@@ -17,9 +17,11 @@ LOCAL_SRC_FILES     := ./native.cpp\
                     ../../src/ModelLoader/PLYLoader.cpp\
                     ../../src/ModelLoader/ModelLoader.cpp\
                     ../../src/InputManager/InputManager.cpp\
-                    ../../src/Camera/Camera.cpp
+                    ../../src/Camera/Camera.cpp\
+                    ../../../editor/server/RuntimeShaderEditor/RuntimeShaderEditor.cpp
 LOCAL_C_INCLUDES    += $(LOCAL_PATH)/../../src
 LOCAL_CFLAGS        += -I "$(CC_COMMON_LIBS)/glm"
+LOCAL_CFLAGS        += -I "$(LOCAL_PATH)/../../../editor/server"
 LOCAL_CFLAGS        += -DOS_ANDROID -DANDROID
 LOCAL_CFLAGS        += -Wno-int-to-pointer-cast
 LOCAL_CPPFLAGS      += -fno-rtti -fno-exceptions -std=c++11 -g
