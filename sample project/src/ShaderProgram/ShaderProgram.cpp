@@ -3,6 +3,7 @@
 #include <ShaderProgram/ShaderProgram.hpp>
 #include <fstream>
 #include <Utils/debug.h>
+#include <RuntimeShaderEditor\RuntimeShaderEditor.hpp>
 
 using namespace std;
 
@@ -64,6 +65,7 @@ void ShaderProgram::init(const char *vertex_shader, const char *fragment_shader,
 
   // It creates and links the program
   m_program = glCreateProgram();
+  RuntimeShaderEditor::GetInstance()->AddProgram("Monkey", m_program);
   glAttachShader(m_program, m_vertex_shader);
   glAttachShader(m_program, m_fragment_shader);
   #ifndef OS_ANDROID

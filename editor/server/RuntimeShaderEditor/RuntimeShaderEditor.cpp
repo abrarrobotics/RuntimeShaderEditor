@@ -24,7 +24,8 @@ RuntimeShaderEditor::RuntimeShaderEditor()
   , m_socket(0)
   , m_client(0)
 {
-	m_message.clear();
+	//m_message.clear();
+	//m_existingPrograms.clear();
 }
 
 RuntimeShaderEditor::~RuntimeShaderEditor()
@@ -194,8 +195,23 @@ void RuntimeShaderEditor::Update()
 					m_message.prepareMessage("done\r\n", rawMessage);
 					send(m_client, rawMessage, strlen(rawMessage), 0);
 				}
+				else if (strstr(msg, "getProgramList"))
+				{
+					int len = m_existingPrograms.length() + 10;
+					char *buff = new char[len];
+					m_message.prepareMessage(m_existingPrograms.c_str(), buff);
+					send(m_client, buff, strlen(buff), 0);
+					delete[] buff;
+				}
 				m_message.clear();
 			}
         }
     }
+}
+
+void RuntimeShaderEditor::AddProgram(const char*desc, int program)
+{
+	char str[500];
+	sprintf(str, "%s:%i|", desc, program);
+	m_existingPrograms.append(str);
 }

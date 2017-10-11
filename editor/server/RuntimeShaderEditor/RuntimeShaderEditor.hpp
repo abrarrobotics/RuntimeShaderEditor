@@ -19,6 +19,7 @@
 #  include <GL/gl.h>
 # endif
 #include <string>
+#include <vector>
 
 class RSEMessage
 {
@@ -55,7 +56,9 @@ class RuntimeShaderEditor
         static RuntimeShaderEditor *GetInstance();
         void Init();
         void Update();
+		void AddProgram(const char* desc, int program);
     private:
+		std::string m_existingPrograms;
         static void PatchShader(GLint program, const char*source, GLenum type);
         static void getShaderSource(GLint program, char* buffer, GLint size);
         static RuntimeShaderEditor *s_instance;

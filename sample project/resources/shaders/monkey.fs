@@ -1,5 +1,5 @@
-precision highp float;
-varying lowp vec3 v_norm;
+//precision highp float;
+varying vec3 v_norm;
 
 void main()
 {
