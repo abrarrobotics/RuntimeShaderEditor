@@ -17,6 +17,8 @@ bool RuntimeShaderEditor::s_initialized = false;
 WSAData RuntimeShaderEditor::s_wsaData;
 #endif
 
+#define SHADER_BUFFER_SIZE 20000
+
 RuntimeShaderEditor::RuntimeShaderEditor()
   : m_port(12346)
   , m_socket(0)
@@ -102,8 +104,8 @@ void RuntimeShaderEditor::getShaderSource(GLint program, char* buffer, GLint siz
     GLint shadersCount = 0;
     GLuint shaderNames[3];
     GLuint toBeReplaced = 0;
-    char vs[20000];
-    char fs[20000];
+    char vs[SHADER_BUFFER_SIZE];
+    char fs[SHADER_BUFFER_SIZE];
 	vs[0] = 0x00;
 	fs[0] = 0x00;
     glGetAttachedShaders(program, 3, &shadersCount, shaderNames);
@@ -112,7 +114,7 @@ void RuntimeShaderEditor::getShaderSource(GLint program, char* buffer, GLint siz
         int len = 0;
         GLint typeAux = 0;
         glGetShaderiv(shaderNames[i], GL_SHADER_TYPE, &typeAux);
-        glGetShaderSource(shaderNames[i], 20000, &len, typeAux == GL_VERTEX_SHADER ? vs : fs);
+        glGetShaderSource(shaderNames[i], SHADER_BUFFER_SIZE, &len, typeAux == GL_VERTEX_SHADER ? vs : fs);
     }
     const char* format = "%s[SEPARATOR]%s";
     sprintf(buffer, format, vs, fs);
@@ -148,8 +150,8 @@ void RuntimeShaderEditor::Update()
 
     if(FD_ISSET(m_client, &readset))
     {
-        char buffer[20000];
-        int len = recv(m_client, buffer, 20000-1, 0);
+        char buffer[SHADER_BUFFER_SIZE];
+        int len = recv(m_client, buffer, SHADER_BUFFER_SIZE-1, 0);
         if(len < 1)
         {
             RSE_LOG("Connection lost!");
@@ -168,8 +170,8 @@ void RuntimeShaderEditor::Update()
 					int program = 0;
 					sscanf(msg, "getShaderSource(%i)\r\n", &program);
 					RSE_LOG("Se ha solicitado el codigo del shader: %i", program);
-					getShaderSource(program, buffer, 20000);
-					char rawMessage[40000];
+					getShaderSource(program, buffer, SHADER_BUFFER_SIZE);
+					char rawMessage[SHADER_BUFFER_SIZE * 2];
 					m_message.prepareMessage(buffer, rawMessage);
 					send(m_client, rawMessage, strlen(rawMessage), 0);
 				}
