@@ -81,6 +81,7 @@ var RuntimeShaderEditor = (function(){
         onResize();
         updateButtonLabels();
         footerLabel.innerHTML = "Ready";
+        ProgramSelector.init();
     }
 
     function onScroll(e)
@@ -158,13 +159,25 @@ var RuntimeShaderEditor = (function(){
         {
             return;
         }
-        alertify
-        .defaultValue("")
-        .prompt("Load GL Program", function(val){
-            connectionState = "loadingProgram";
-            socket.write(RSEMessage.prepareMessage("getShaderSource(" + val + ")\r\n"));
-            currentProgram = val;
-        });
+
+        connectionState = "loadingProgramList";
+        socket.write(RSEMessage.prepareMessage("getProgramList()"));
+        footerLabel.innerHTML = "Loading program list...";
+
+        //ProgramSelector.show(function(val){
+        //    connectionState = "loadingProgram";
+        //    socket.write(RSEMessage.prepareMessage("getShaderSource(" + val + ")\r\n"));
+        //    currentProgram = val;            
+        //});
+
+
+        //alertify
+        //.defaultValue("")
+        //.prompt("Load GL Program", function(val){
+        //    connectionState = "loadingProgram";
+        //    socket.write(RSEMessage.prepareMessage("getShaderSource(" + val + ")\r\n"));
+        //    currentProgram = val;
+        //});
     }
 
     function onRestoreBtnClicked()
@@ -240,6 +253,24 @@ var RuntimeShaderEditor = (function(){
             {
                 footerLabel.innerHTML = "Compilation Failed";
             }
+        }
+        else if(connectionState == "loadingProgramList")
+        {
+            connectionState = "connected";
+            var array = data.toString().split("|");
+            var programList = [];
+            for(var i = 0; i < array.length; i++)
+            {
+                var items = array[i].split(":");
+                programList.push({desc: items[0], id:items[1]});
+            }
+            ProgramSelector.updateProgramList(programList);
+            ProgramSelector.show(function(val){
+                connectionState = "loadingProgram";
+                socket.write(RSEMessage.prepareMessage("getShaderSource(" + val + ")\r\n"));
+                currentProgram = val;
+            });
+            footerLabel.innerHTML = "Ready";
         }
     }
 

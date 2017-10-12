@@ -195,7 +195,7 @@ void RuntimeShaderEditor::Update()
 					m_message.prepareMessage("done\r\n", rawMessage);
 					send(m_client, rawMessage, strlen(rawMessage), 0);
 				}
-				else if (strstr(msg, "getProgramList"))
+				else if (strstr(msg, "getProgramList()"))
 				{
 					int len = m_existingPrograms.length() + 10;
 					char *buff = new char[len];

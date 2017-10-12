@@ -1,0 +1,53 @@
+
+
+.program-selector-dialog {
+	text-align: center;
+}
+
+.program-selector-button {
+	border: 0;
+	background-color: white;
+	user-select: none;
+	//padding: 10px;
+	width: 88px;
+	height: 38px;
+	color: ;
+	float: right;
+}
+
+.program-selector-button:hover {
+	background-color: #ecf0f1;
+}
+
+.program-selector-button-ok {
+	margin-right: 15px;
+}
+
+.program-selector-input {
+	margin: 10px;
+	width: 70%;
+	font-size: 15px;
+	padding: 5px;
+	text-align: center;
+}
+
+#program-selector-select {
+	margin: 10px;
+	width: 73%;
+	font-size: 15px;
+	padding: 5px;
+	text-align: center;	
+}
+
+.program-selector-label {
+	display: inline-block;
+	width:  100px;
+	text-align: right;
+}
+
+.program-selector-title {
+	color : #95a5a6;
+	font-size: 18px;
+	margin-top: 15px;
+	display: block;
+}
