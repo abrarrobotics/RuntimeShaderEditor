@@ -215,3 +215,26 @@ void RuntimeShaderEditor::AddProgram(const char*desc, int program)
 	sprintf(str, "%s:%i|", desc, program);
 	m_existingPrograms.append(str);
 }
+
+void RSEMessage::addData(char*data)
+{
+	buffer.append(data);
+}
+bool RSEMessage::isComplete()
+{
+	int len = 0;
+	sscanf(buffer.c_str(), "%i ", &len);
+	return strlen(strstr(buffer.c_str(), " ")) == len + 1;
+}
+void RSEMessage::clear()
+{
+	buffer.clear();
+}
+void RSEMessage::prepareMessage(const char*input, char*output)
+{
+	sprintf(output, "%i %s", strlen(input), input);
+}
+const char* RSEMessage::getMessage()
+{
+	return strstr(buffer.c_str(), " ") + 1;
+}

@@ -26,28 +26,11 @@ class RSEMessage
 private:
 	std::string buffer;
 public:
-	void addData(char*data)
-	{
-		buffer.append(data);
-	}
-	bool isComplete()
-	{
-		int len = 0;
-		sscanf(buffer.c_str(), "%i ", &len);
-		return strlen(strstr(buffer.c_str(), " ")) == len + 1;
-	}
-	void clear()
-	{
-		buffer.clear();
-	}
-	void prepareMessage(const char*input, char*output)
-	{
-		sprintf(output, "%i %s", strlen(input), input);
-	}
-	const char* getMessage()
-	{
-		return strstr(buffer.c_str(), " ") + 1;
-	}
+	void addData(char*data);
+	bool isComplete();
+	void clear();
+	void prepareMessage(const char*input, char*output);
+	const char* getMessage();
 };
 
 class RuntimeShaderEditor
