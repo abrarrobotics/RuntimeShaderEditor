@@ -75,7 +75,7 @@ void RuntimeShaderEditor::Init()
     }
 }
 
-void RuntimeShaderEditor::PatchShader(GLint program, const char*source, GLenum type)
+GLuint RuntimeShaderEditor::PatchShader(GLint program, const char*source, GLenum type)
 {
     RSE_LOG("Patching program: %i, type: %s, with source: %s", program, type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT", source);
     GLint shadersCount = 0;
@@ -95,9 +95,15 @@ void RuntimeShaderEditor::PatchShader(GLint program, const char*source, GLenum t
     GLint newShader = glCreateShader(type);
     glShaderSource(newShader, 1, (const GLchar **)&source, 0);
     glCompileShader(newShader);
-    glDetachShader(program, toBeReplaced);
-    glAttachShader(program, newShader);
-    glLinkProgram(program);
+	GLint isCompiled = 0;
+	glGetShaderiv(newShader, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled)
+	{
+		glDetachShader(program, toBeReplaced);
+		glAttachShader(program, newShader);
+		glLinkProgram(program);
+	}
+	return newShader;
 }
 
 void RuntimeShaderEditor::getShaderSource(GLint program, char* buffer, GLint size)
@@ -190,10 +196,14 @@ void RuntimeShaderEditor::Update()
 					{
 						shaderType = GL_FRAGMENT_SHADER;
 					}
-					PatchShader(program, &aux[1], shaderType);
-					char rawMessage[10];
-					m_message.prepareMessage("done\r\n", rawMessage);
-					send(m_client, rawMessage, strlen(rawMessage), 0);
+					GLuint shaderHandler = PatchShader(program, &aux[1], shaderType);
+					char log[1024]; char raw[1024];
+					int len = getCompilationError(log, 1024, shaderHandler);
+					if(len == 0)
+					    m_message.prepareMessage("done\r\n", raw);
+					else
+						m_message.prepareMessage(log, raw);
+					send(m_client, raw, strlen(raw), 0);
 				}
 				else if (strstr(msg, "getProgramList()"))
 				{
@@ -207,6 +217,18 @@ void RuntimeShaderEditor::Update()
 			}
         }
     }
+}
+
+int RuntimeShaderEditor::getCompilationError(char* buffer, int size, GLuint shaderHandler)
+{
+	GLint isCompiled = 0;
+	glGetShaderiv(shaderHandler, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled)
+		return 0;
+	GLint errorMessageLength = 0;
+	glGetShaderiv(shaderHandler, GL_INFO_LOG_LENGTH, &errorMessageLength);
+	glGetShaderInfoLog(shaderHandler, size, &errorMessageLength, buffer);
+	return errorMessageLength;
 }
 
 void RuntimeShaderEditor::AddProgram(const char*desc, int program)

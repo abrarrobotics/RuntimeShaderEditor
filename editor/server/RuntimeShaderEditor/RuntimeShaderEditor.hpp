@@ -42,7 +42,8 @@ class RuntimeShaderEditor
 		void AddProgram(const char* desc, int program);
     private:
 		std::string m_existingPrograms;
-        static void PatchShader(GLint program, const char*source, GLenum type);
+        static GLuint PatchShader(GLint program, const char*source, GLenum type);
+		static int getCompilationError(char* buffer, int size, GLuint shaderHandler);
         static void getShaderSource(GLint program, char* buffer, GLint size);
         static RuntimeShaderEditor *s_instance;
         int m_port;

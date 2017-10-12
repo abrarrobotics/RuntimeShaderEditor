@@ -251,6 +251,7 @@ var RuntimeShaderEditor = (function(){
             }
             else
             {
+                alert(data.toString());
                 footerLabel.innerHTML = "Compilation Failed";
             }
         }
