@@ -1,4 +1,8 @@
-##### RuntimeShaderEditor for OpenGL
+##### RuntimeShaderEditor (GLSL)
+###### screenshots
+<img width="300px" src="https://image.ibb.co/djXAoS/step1.png"> <img width="300px" src="https://image.ibb.co/gU91v7/step2.png">
+<img width="500px" src="https://image.ibb.co/e0coa7/step3.png">
+
  - editor : contains the editor code (server/client)
  - sample project : a project that implements RuntimeShaderEditor
 
